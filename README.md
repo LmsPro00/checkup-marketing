@@ -48,10 +48,10 @@ Il tool sarà disponibile su `http://localhost:3000`
 ## 🔗 Integrazione HubSpot
 
 Il tool si integra perfettamente con HubSpot per:
-- ✅ Aggiornare i contatti esistenti con i dati del checkup
-- ✅ Creare deal automatici per tracciare le opportunità
-- ✅ Salvare note dettagliate con tutte le raccomandazioni
-- ✅ Tracciare score per 9 categorie di marketing
+- ✅ Aggiornare automaticamente i contatti esistenti con i dati del checkup
+- ✅ Salvare il punteggio complessivo e per 9 categorie di marketing
+- ✅ Tracciare tutte le risposte del questionario come proprietà personalizzate
+- ✅ Aggiornare il lifecycle stage a "Marketing Qualified Lead"
 
 📖 **Guida completa**: Vedi [HUBSPOT_SETUP.md](./HUBSPOT_SETUP.md)
 

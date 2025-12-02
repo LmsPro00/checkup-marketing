@@ -91,19 +91,6 @@ Devi creare queste proprietà personalizzate per i **Contatti** in HubSpot:
 4. Clicca su **Save**
 5. Rideploya il progetto
 
-## 📊 Step 5: Configurare Pipeline e Deal Stage (Opzionale)
-
-Se vuoi personalizzare la pipeline dei deal:
-
-1. Vai su **Settings** → **Objects** → **Deals**
-2. Clicca su **Pipelines**
-3. Annota il nome della pipeline che vuoi usare
-4. Modifica `src/utils/hubspot.js`:
-   ```javascript
-   dealstage: 'appointmentscheduled', // Cambia con il tuo stage
-   pipeline: 'default', // Cambia con la tua pipeline
-   ```
-
 ## 🔄 Flusso di Integrazione
 
 1. **Landing Page** → L'utente compila il form HubSpot (acquisizione lead)
@@ -111,18 +98,18 @@ Se vuoi personalizzare la pipeline dei deal:
 3. **Email Capture** → Richiesta email per collegare i dati
 4. **Invio a HubSpot** → Il sistema:
    - Cerca il contatto tramite email
-   - Aggiorna tutte le proprietà con i dati del checkup
-   - Crea un deal per tracciare l'opportunità
-   - Aggiunge una nota con le raccomandazioni complete
+   - Aggiorna tutte le proprietà del contatto con i dati del checkup (score, risposte, categorie)
 
 ## 🧪 Test dell'Integrazione
 
 1. Crea un contatto di test in HubSpot con la tua email
 2. Completa il checkup usando quella email
-3. Verifica in HubSpot che:
-   - Le proprietà del contatto siano aggiornate
-   - Sia stato creato un deal
-   - Sia stata aggiunta una nota con le raccomandazioni
+3. Verifica in HubSpot che le proprietà del contatto siano state aggiornate con:
+   - Punteggio complessivo (checkup_score)
+   - Livello (checkup_level)
+   - Data checkup (checkup_date)
+   - Punteggi per ogni categoria
+   - Informazioni dalle risposte (sito web, social media, budget, etc.)
 
 ## ⚠️ Troubleshooting
 
