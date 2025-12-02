@@ -113,7 +113,13 @@ function App() {
     await new Promise(resolve => setTimeout(resolve, 500));
 
     // Invia dati a HubSpot
+    console.log('🔍 DEBUG: Inizio invio HubSpot');
+    console.log('🔍 DEBUG: userEmail =', userEmail);
+    console.log('🔍 DEBUG: hubspotSent =', hubspotSent);
+    console.log('🔍 DEBUG: API Key presente?', import.meta.env.VITE_HUBSPOT_API_KEY ? 'SÌ' : 'NO');
+    
     if (userEmail && !hubspotSent) {
+      console.log('✅ Condizioni OK, invio a HubSpot...');
       try {
         const hubspotResult = await sendToHubSpot(
           userEmail,
@@ -122,15 +128,23 @@ function App() {
           recs
         );
         
+        console.log('📦 Risultato HubSpot:', hubspotResult);
+        
         if (hubspotResult.success) {
           console.log('✅ Dati inviati a HubSpot con successo!');
+          console.log('📊 Contact ID:', hubspotResult.contactId);
           setHubspotSent(true);
         } else {
           console.error('❌ Errore invio HubSpot:', hubspotResult.error);
         }
       } catch (error) {
-        console.error('❌ Errore invio HubSpot:', error);
+        console.error('❌ Errore catch invio HubSpot:', error);
+        console.error('❌ Stack trace:', error.stack);
       }
+    } else {
+      console.warn('⚠️ Invio HubSpot saltato. Motivo:');
+      if (!userEmail) console.warn('  - Email mancante');
+      if (hubspotSent) console.warn('  - Già inviato in precedenza');
     }
 
     setCurrentStep('results');

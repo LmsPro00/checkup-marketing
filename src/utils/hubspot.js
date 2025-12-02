@@ -86,9 +86,15 @@ const getCategoryName = (category) => {
  * Cerca il contatto tramite email e aggiorna le proprietà
  */
 export const updateContactWithCheckup = async (email, answers, results, recommendations) => {
+  console.log('🔍 HubSpot: Inizio updateContactWithCheckup');
+  console.log('🔍 HubSpot: Email =', email);
+  console.log('🔍 HubSpot: API Key =', HUBSPOT_API_KEY ? 'Presente' : 'MANCANTE');
+  
   try {
     // Genera il riassunto AI
+    console.log('📝 Generazione riassunto AI...');
     const aiSummary = generateAISummary(answers, results, recommendations);
+    console.log('✅ Riassunto AI generato, lunghezza:', aiSummary.length);
     
     const properties = {
       // Riassunto AI della valutazione
@@ -126,27 +132,33 @@ export const updateContactWithCheckup = async (email, answers, results, recommen
     };
 
     // Aggiorna il contatto usando l'email come identificatore
-    const response = await fetch(
-      `${HUBSPOT_API_URL}/crm/v3/objects/contacts/${email}?idProperty=email`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${HUBSPOT_API_KEY}`
-        },
-        body: JSON.stringify({ properties })
-      }
-    );
+    const url = `${HUBSPOT_API_URL}/crm/v3/objects/contacts/${email}?idProperty=email`;
+    console.log('🌐 URL chiamata HubSpot:', url);
+    console.log('📦 Proprietà da inviare:', Object.keys(properties).length, 'proprietà');
+    
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${HUBSPOT_API_KEY}`
+      },
+      body: JSON.stringify({ properties })
+    });
+
+    console.log('📡 Risposta HubSpot - Status:', response.status);
 
     if (!response.ok) {
       const errorData = await response.json();
+      console.error('❌ Errore API HubSpot:', errorData);
       throw new Error(`HubSpot API error: ${response.status} - ${JSON.stringify(errorData)}`);
     }
 
     const data = await response.json();
+    console.log('✅ Contatto aggiornato con successo! ID:', data.id);
     return { success: true, contactId: data.id };
   } catch (error) {
-    console.error('Error updating contact:', error);
+    console.error('❌ Error updating contact:', error);
+    console.error('❌ Error details:', error.message);
     return { success: false, error: error.message };
   }
 };
