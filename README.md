@@ -37,11 +37,23 @@ Il tool sarà disponibile su `http://localhost:3000`
 
 ## 📝 Come Funziona
 
-1. L'utente risponde a 13 domande sul proprio business
-2. Il sistema analizza automaticamente il sito web fornito
-3. Viene generato un punteggio complessivo e per categoria
-4. Il report include raccomandazioni personalizzate
-5. Possibilità di scaricare il report in PDF
+1. **Landing Page Esterna**: L'utente compila il form HubSpot (acquisizione lead)
+2. **Questionario Interattivo**: Risponde alle domande sul proprio business
+3. **Email Capture**: Inserisce l'email per collegare i dati al contatto HubSpot
+4. **Analisi Automatica**: Il sistema analizza il sito web e calcola gli score
+5. **Report Dettagliato**: Visualizza punteggi, grafici e raccomandazioni
+6. **Integrazione HubSpot**: Tutti i dati vengono inviati automaticamente a HubSpot
+7. **Export PDF**: Possibilità di scaricare il report completo
+
+## 🔗 Integrazione HubSpot
+
+Il tool si integra perfettamente con HubSpot per:
+- ✅ Aggiornare i contatti esistenti con i dati del checkup
+- ✅ Creare deal automatici per tracciare le opportunità
+- ✅ Salvare note dettagliate con tutte le raccomandazioni
+- ✅ Tracciare score per 9 categorie di marketing
+
+📖 **Guida completa**: Vedi [HUBSPOT_SETUP.md](./HUBSPOT_SETUP.md)
 
 ## 🎨 Struttura
 

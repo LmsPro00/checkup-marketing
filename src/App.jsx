@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Loader2, Sparkles } from 'lucide-react';
 import QuestionCard from './components/QuestionCard';
 import ReportDashboard from './components/ReportDashboard';
+import EmailForm from './components/EmailForm';
 import { questions } from './data/questions';
 import { 
   analyzeSitePerformance, 
@@ -9,17 +10,20 @@ import {
   generateRecommendations,
   analyzeCompetitors 
 } from './utils/analyzer';
+import { sendToHubSpot } from './utils/hubspot';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
 function App() {
-  const [currentStep, setCurrentStep] = useState('welcome'); // welcome, questionnaire, analyzing, results
+  const [currentStep, setCurrentStep] = useState('welcome'); // welcome, questionnaire, emailCapture, analyzing, results
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
+  const [userEmail, setUserEmail] = useState(null);
   const [results, setResults] = useState(null);
   const [siteAnalysis, setSiteAnalysis] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
   const [competitorAnalysis, setCompetitorAnalysis] = useState(null);
+  const [hubspotSent, setHubspotSent] = useState(false);
 
   // Filtra domande in base alle condizioni
   const getFilteredQuestions = () => {
@@ -50,12 +54,15 @@ function App() {
     return currentAnswer.value !== undefined && currentAnswer.value !== '';
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentQuestionIndex < filteredQuestions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
-      // Tutte le domande completate, inizia analisi
-      analyzeData();
+      // Tutte le domande completate, calcola risultati preliminari
+      const scoreResults = calculateScore(Object.values(answers));
+      setResults(scoreResults);
+      // Mostra form email
+      setCurrentStep('emailCapture');
     }
   };
 
@@ -105,7 +112,35 @@ function App() {
 
     await new Promise(resolve => setTimeout(resolve, 500));
 
+    // Invia dati a HubSpot
+    if (userEmail && !hubspotSent) {
+      try {
+        const hubspotResult = await sendToHubSpot(
+          userEmail,
+          Object.values(answers),
+          scoreResults,
+          recs
+        );
+        
+        if (hubspotResult.success) {
+          console.log('✅ Dati inviati a HubSpot con successo!');
+          setHubspotSent(true);
+        } else {
+          console.error('❌ Errore invio HubSpot:', hubspotResult.error);
+        }
+      } catch (error) {
+        console.error('❌ Errore invio HubSpot:', error);
+      }
+    }
+
     setCurrentStep('results');
+  };
+
+  const handleEmailSubmit = (email) => {
+    setUserEmail(email);
+    setCurrentStep('analyzing');
+    // Riavvia l'analisi con l'email
+    analyzeData();
   };
 
   const handleExportPDF = async () => {
@@ -317,6 +352,15 @@ function App() {
           </div>
         </div>
       </div>
+    );
+  }
+
+  if (currentStep === 'emailCapture') {
+    return (
+      <EmailForm 
+        onSubmit={handleEmailSubmit}
+        results={results || { overallScore: 0, level: { emoji: '⏳', label: 'Calcolando...' } }}
+      />
     );
   }
 
