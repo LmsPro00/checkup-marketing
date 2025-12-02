@@ -6,12 +6,94 @@ const HUBSPOT_API_KEY = import.meta.env.VITE_HUBSPOT_API_KEY;
 const HUBSPOT_API_URL = 'https://api.hubapi.com';
 
 /**
+ * Genera un riassunto AI della valutazione
+ */
+const generateAISummary = (answers, results, recommendations) => {
+  const { overallScore, level, categoryScores } = results;
+  
+  // Identifica punti di forza (score >= 70)
+  const strengths = Object.entries(categoryScores)
+    .filter(([_, score]) => score >= 70)
+    .map(([cat, score]) => `${getCategoryName(cat)} (${score}/100)`);
+  
+  // Identifica aree critiche (score < 50)
+  const criticalAreas = Object.entries(categoryScores)
+    .filter(([_, score]) => score < 50)
+    .map(([cat, score]) => `${getCategoryName(cat)} (${score}/100)`);
+  
+  // Top 3 raccomandazioni prioritarie
+  const topRecommendations = recommendations
+    .filter(r => r.priority === 'high')
+    .slice(0, 3)
+    .map(r => r.title);
+  
+  // Costruisci il riassunto
+  let summary = `📊 VALUTAZIONE MARKETING CHECKUP\n\n`;
+  summary += `Punteggio Complessivo: ${overallScore}/100 - ${level.emoji} ${level.label}\n\n`;
+  
+  if (strengths.length > 0) {
+    summary += `✅ PUNTI DI FORZA:\n`;
+    strengths.forEach(s => summary += `• ${s}\n`);
+    summary += `\n`;
+  }
+  
+  if (criticalAreas.length > 0) {
+    summary += `⚠️ AREE CRITICHE DA MIGLIORARE:\n`;
+    criticalAreas.forEach(a => summary += `• ${a}\n`);
+    summary += `\n`;
+  }
+  
+  if (topRecommendations.length > 0) {
+    summary += `🎯 PRIORITÀ IMMEDIATE:\n`;
+    topRecommendations.forEach((r, i) => summary += `${i + 1}. ${r}\n`);
+    summary += `\n`;
+  }
+  
+  // Aggiungi insights specifici basati sul punteggio
+  if (overallScore >= 80) {
+    summary += `💡 INSIGHT: Ottimo lavoro! Il marketing è ben strutturato. Focus su ottimizzazione e scaling.`;
+  } else if (overallScore >= 60) {
+    summary += `💡 INSIGHT: Buone basi, ma c'è margine di miglioramento. Concentrati sulle aree critiche evidenziate.`;
+  } else if (overallScore >= 40) {
+    summary += `💡 INSIGHT: Il marketing necessita di attenzione urgente. Prioritizza le raccomandazioni ad alta priorità.`;
+  } else {
+    summary += `💡 INSIGHT: È il momento di investire seriamente nel marketing digitale. Inizia dalle fondamenta: sito web, presenza online e analytics.`;
+  }
+  
+  return summary;
+};
+
+/**
+ * Helper per ottenere il nome leggibile della categoria
+ */
+const getCategoryName = (category) => {
+  const names = {
+    digital_presence: 'Presenza Digitale',
+    seo: 'SEO',
+    content: 'Content Marketing',
+    social_media: 'Social Media',
+    advertising: 'Advertising',
+    analytics: 'Analytics',
+    email_marketing: 'Email Marketing',
+    conversion: 'Conversioni',
+    customer_engagement: 'Customer Engagement'
+  };
+  return names[category] || category;
+};
+
+/**
  * Aggiorna un contatto esistente in HubSpot con i dati del checkup
  * Cerca il contatto tramite email e aggiorna le proprietà
  */
-export const updateContactWithCheckup = async (email, answers, results) => {
+export const updateContactWithCheckup = async (email, answers, results, recommendations) => {
   try {
+    // Genera il riassunto AI
+    const aiSummary = generateAISummary(answers, results, recommendations);
+    
     const properties = {
+      // Riassunto AI della valutazione
+      checkup_ai_summary: aiSummary,
+      
       // Punteggio del checkup
       checkup_score: results.overallScore,
       checkup_level: results.level.label,
@@ -76,7 +158,7 @@ export const updateContactWithCheckup = async (email, answers, results) => {
 export const sendToHubSpot = async (email, answers, results, recommendations) => {
   try {
     // Aggiorna solo il contatto esistente con tutte le proprietà
-    const contactResult = await updateContactWithCheckup(email, answers, results);
+    const contactResult = await updateContactWithCheckup(email, answers, results, recommendations);
     
     if (!contactResult.success) {
       throw new Error('Failed to update contact: ' + contactResult.error);

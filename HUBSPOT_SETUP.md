@@ -23,6 +23,7 @@ Devi creare queste proprietà personalizzate per i **Contatti** in HubSpot:
 
 | Nome Interno | Etichetta | Tipo | Descrizione |
 |--------------|-----------|------|-------------|
+| `checkup_ai_summary` | **Checkup AI Summary** | **Multi-line text** | **Riassunto AI della valutazione con punti di forza, aree critiche e priorità** |
 | `checkup_score` | Checkup Score | Number | Punteggio complessivo 0-100 |
 | `checkup_level` | Checkup Level | Single-line text | Livello: Eccellente/Buono/Sufficiente/Da Migliorare |
 | `checkup_date` | Checkup Date | Date picker | Data completamento checkup |
