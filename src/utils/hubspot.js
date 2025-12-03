@@ -94,38 +94,8 @@ export const updateContactWithCheckup = async (email, answers, results, recommen
     console.log('✅ Riassunto AI generato, lunghezza:', aiSummary.length);
     
     const properties = {
-      // Riassunto AI della valutazione
-      checkup_ai_summary: aiSummary,
-      
-      // Punteggio del checkup
-      checkup_score: results.overallScore,
-      checkup_level: results.level.label,
-      checkup_date: new Date().toISOString(),
-      
-      // Punteggi per categoria
-      score_digital_presence: results.categoryScores.digital_presence || 0,
-      score_seo: results.categoryScores.seo || 0,
-      score_content: results.categoryScores.content || 0,
-      score_social_media: results.categoryScores.social_media || 0,
-      score_advertising: results.categoryScores.advertising || 0,
-      score_analytics: results.categoryScores.analytics || 0,
-      score_email_marketing: results.categoryScores.email_marketing || 0,
-      score_conversion: results.categoryScores.conversion || 0,
-      score_customer_engagement: results.categoryScores.customer_engagement || 0,
-      
-      // Informazioni aggiuntive dalle risposte
-      has_website: getAnswerValue(answers, 1) === 'yes' ? 'true' : 'false',
-      website_url: getAnswerValue(answers, 2) || '',
-      social_media_platforms: Array.isArray(getAnswerValue(answers, 7)) 
-        ? getAnswerValue(answers, 7).join(', ') 
-        : '',
-      monthly_marketing_budget: getAnswerValue(answers, 9) || '',
-      uses_analytics: getAnswerValue(answers, 10) || '',
-      has_email_marketing: getAnswerValue(answers, 11) || '',
-      competitors: getAnswerValue(answers, 12) || '',
-      
-      // Lifecycle stage update
-      lifecyclestage: 'marketingqualifiedlead'
+      // Riassunto AI della valutazione (UNICA PROPRIETÀ INVIATA)
+      checkup_ai_summary: aiSummary
     };
 
     // Chiama l'API route serverless invece di HubSpot direttamente (evita CORS)
@@ -185,8 +155,8 @@ export const sendToHubSpot = async (email, answers, results, recommendations) =>
   }
 };
 
-// Helper function
-const getAnswerValue = (answers, questionId) => {
-  const answer = answers.find(a => a.question.id === questionId);
-  return answer ? answer.value : null;
-};
+// Helper function (non più usata, ma lasciata per future espansioni)
+// const getAnswerValue = (answers, questionId) => {
+//   const answer = answers.find(a => a.question.id === questionId);
+//   return answer ? answer.value : null;
+// };
