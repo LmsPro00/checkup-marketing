@@ -1,9 +1,7 @@
 // Utility per integrare con HubSpot
 // Flusso: L'utente è già un contatto in HubSpot (acquisito dalla landing page)
 // Usiamo l'email per trovare e aggiornare il contatto con i dati del checkup
-
-const HUBSPOT_API_KEY = import.meta.env.VITE_HUBSPOT_API_KEY;
-const HUBSPOT_API_URL = 'https://api.hubapi.com';
+// Le chiamate passano attraverso un'API route serverless per evitare problemi CORS
 
 /**
  * Genera un riassunto AI della valutazione
@@ -88,7 +86,6 @@ const getCategoryName = (category) => {
 export const updateContactWithCheckup = async (email, answers, results, recommendations) => {
   console.log('🔍 HubSpot: Inizio updateContactWithCheckup');
   console.log('🔍 HubSpot: Email =', email);
-  console.log('🔍 HubSpot: API Key =', HUBSPOT_API_KEY ? 'Presente' : 'MANCANTE');
   
   try {
     // Genera il riassunto AI
@@ -131,18 +128,20 @@ export const updateContactWithCheckup = async (email, answers, results, recommen
       lifecyclestage: 'marketingqualifiedlead'
     };
 
-    // Aggiorna il contatto usando l'email come identificatore
-    const url = `${HUBSPOT_API_URL}/crm/v3/objects/contacts/${email}?idProperty=email`;
-    console.log('🌐 URL chiamata HubSpot:', url);
+    // Chiama l'API route serverless invece di HubSpot direttamente (evita CORS)
+    const apiUrl = '/api/hubspot';
+    console.log('🌐 Chiamata API serverless:', apiUrl);
     console.log('📦 Proprietà da inviare:', Object.keys(properties).length, 'proprietà');
     
-    const response = await fetch(url, {
-      method: 'PATCH',
+    const response = await fetch(apiUrl, {
+      method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${HUBSPOT_API_KEY}`
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ properties })
+      body: JSON.stringify({ 
+        email,
+        properties 
+      })
     });
 
     console.log('📡 Risposta HubSpot - Status:', response.status);
