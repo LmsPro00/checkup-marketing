@@ -72,8 +72,11 @@ function App() {
     }
   };
 
-  const analyzeData = async () => {
+  const analyzeData = async (emailToUse = null) => {
     setCurrentStep('analyzing');
+    
+    // Usa l'email passata come parametro o quella nello stato
+    const emailForHubSpot = emailToUse || userEmail;
 
     // Simula un processo di analisi
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -114,15 +117,16 @@ function App() {
 
     // Invia dati a HubSpot
     console.log('🔍 DEBUG: Inizio invio HubSpot');
-    console.log('🔍 DEBUG: userEmail =', userEmail);
+    console.log('🔍 DEBUG: emailForHubSpot =', emailForHubSpot);
+    console.log('🔍 DEBUG: userEmail (stato) =', userEmail);
     console.log('🔍 DEBUG: hubspotSent =', hubspotSent);
     console.log('🔍 DEBUG: API Key presente?', import.meta.env.VITE_HUBSPOT_API_KEY ? 'SÌ' : 'NO');
     
-    if (userEmail && !hubspotSent) {
+    if (emailForHubSpot && !hubspotSent) {
       console.log('✅ Condizioni OK, invio a HubSpot...');
       try {
         const hubspotResult = await sendToHubSpot(
-          userEmail,
+          emailForHubSpot,
           Object.values(answers),
           scoreResults,
           recs
@@ -143,7 +147,7 @@ function App() {
       }
     } else {
       console.warn('⚠️ Invio HubSpot saltato. Motivo:');
-      if (!userEmail) console.warn('  - Email mancante');
+      if (!emailForHubSpot) console.warn('  - Email mancante');
       if (hubspotSent) console.warn('  - Già inviato in precedenza');
     }
 
@@ -153,8 +157,8 @@ function App() {
   const handleEmailSubmit = (email) => {
     setUserEmail(email);
     setCurrentStep('analyzing');
-    // Riavvia l'analisi con l'email
-    analyzeData();
+    // Passa l'email direttamente ad analyzeData
+    analyzeData(email);
   };
 
   const handleExportPDF = async () => {
